@@ -1,54 +1,148 @@
-# Chat with PostgreSQL 🗄️🤖
+# Chat with Postgres: Natural Language SQL Agent
 
-A Streamlit app that lets you **chat with your PostgreSQL database** using **LangChain** and **OpenAI GPT models**.  
-Ask questions in plain English, and the app will translate them into SQL, run the queries, and explain the results.
-
----
-
-## 🚀 Features
-- 🔑 Securely connect to any PostgreSQL database with user-provided credentials.
-- 🤖 Uses OpenAI GPT (via LangChain) to convert natural language into SQL.
-- 📊 Displays query results as interactive tables.
-- 📝 AI-generated explanations of results.
-- 💬 Maintains a chat history for context-aware conversations.
-- 📂 Explore database schema and table names in the sidebar.
-- 🧹 Clear chat history and set maximum rows to display.
-- 🔄 Fallback to conversational agent if SQL execution fails.
+A conversational Text-to-SQL assistant that translates plain English questions into PostgreSQL queries and returns structured results, powered by LangChain, OpenAI, and Streamlit.
 
 ---
 
-## ⚙️ Installation
+## How It Works
 
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/your-username/chat-with-postgres.git
-   cd chat-with-postgres
+```
+User: "Show me the top 5 customers by total orders last month"
+    │
+    ▼
+┌──────────────────────┐
+│   LangChain Agent     │  ──→  Inspects schema, understands table relationships
+└──────────────────────┘
+    │
+    ▼
+┌──────────────────────┐
+│   OpenAI LLM          │  ──→  Generates valid PostgreSQL query from intent
+└──────────────────────┘
+    │
+    ▼
+┌──────────────────────┐
+│   PostgreSQL          │  ──→  Executes query safely against your database
+└──────────────────────┘
+    │
+    ▼
+┌──────────────────────┐
+│   Streamlit UI        │  ──→  Displays results as formatted table + raw SQL
+└──────────────────────┘
+```
 
-2. Create a virtual environment:
-    ```bash
-   python -m venv venv
-   source venv/bin/activate     # on Mac/Linux
-   venv\Scripts\activate  # On windows
+### Key Design Decisions
+- **Schema-aware generation**: LangChain SQL Agent introspects the database schema before generating queries, reducing hallucinated column/table names
+- **SQL transparency**: the generated SQL is always shown alongside results so users can verify and trust the output
+- **Conversational context**: multi-turn conversation history lets users refine queries naturally ("now filter only active ones")
+- **Safe execution**: read-only query enforcement prevents accidental data modification
 
-3. Install dependencies:
-    ```bash
-   pip install -r requirements.txt
+---
 
-▶️ Usage
-1. Run the Streamlit app:
-    ```bash
-   streamlit run app.py
+## Tech Stack
 
-2. Enter your PostgreSQL credentials and OpenAI API key in the sidebar.
+| Component | Technology |
+|---|---|
+| LLM | OpenAI GPT-4o-mini |
+| Agent Framework | LangChain SQL Agent |
+| Database | PostgreSQL |
+| DB Connector | SQLAlchemy |
+| Web UI | Streamlit |
+| Language | Python 3.10+ |
 
-3. Ask questions about your data in natural language!
+---
 
-📌 Example
+## Features
 
-Question: "Show me the top 5 customers by sales"
-    The app will:
+- 💬 **Natural language to SQL**: ask questions in plain English, get SQL + results
+- 🔍 **Schema introspection**: automatically reads your database structure
+- 📊 **Formatted results**: query output displayed as clean interactive tables
+- 🔎 **SQL visibility**: generated SQL always shown for transparency
+- 🧠 **Multi-turn conversation**: refine queries across multiple messages
+- 🖥 **Streamlit interface**: simple web UI, no SQL knowledge needed
 
-        Generate SQL
-        Run the query
-        Show results in a table
-        Provide an explanation in plain English
+---
+
+## Project Structure
+
+```
+├── app.py              # Streamlit UI and conversation loop
+├── agent.py            # LangChain SQL Agent setup
+├── db.py               # PostgreSQL connection and SQLAlchemy config
+├── requirements.txt
+├── .env.example
+├── LICENSE
+└── README.md
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Python 3.10+
+- PostgreSQL database (local or remote)
+- OpenAI API key → [platform.openai.com](https://platform.openai.com)
+
+### Installation
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/armankhan8150/chat-with-postgres.git
+cd chat-with-postgres
+
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Set up environment variables
+cp .env.example .env
+# Add your credentials to .env
+```
+
+### Environment Variables
+
+```env
+OPENAI_API_KEY=your_openai_api_key
+DATABASE_URL=postgresql://user:password@localhost:5432/your_database
+```
+
+### Run
+
+```bash
+streamlit run app.py
+```
+
+---
+
+## Example Queries
+
+| You Ask | Generated SQL |
+|---|---|
+| "How many users registered this week?" | `SELECT COUNT(*) FROM users WHERE created_at >= NOW() - INTERVAL '7 days'` |
+| "Top 5 products by revenue" | `SELECT name, SUM(price * quantity) AS revenue FROM orders GROUP BY name ORDER BY revenue DESC LIMIT 5` |
+| "Show all orders with status pending" | `SELECT * FROM orders WHERE status = 'pending'` |
+
+---
+
+## 🗺 Roadmap
+
+- [ ] Support for multiple database schemas
+- [ ] Query history and export to CSV
+- [ ] Chart generation from query results
+- [ ] MySQL and SQLite support
+
+---
+
+## Author
+
+**Arman Malik**: AI Engineer
+[LinkedIn](https://linkedin.com/in/arman-malik) · [GitHub](https://github.com/armankhan8150)
+
+---
+
+## License
+
+MIT License: see [LICENSE](LICENSE) for details.
