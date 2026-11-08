@@ -62,20 +62,6 @@ User: "Show me the top 5 customers by total orders last month"
 
 ---
 
-## Project Structure
-
-```
-├── app.py              # Streamlit UI and conversation loop
-├── agent.py            # LangChain SQL Agent setup
-├── db.py               # PostgreSQL connection and SQLAlchemy config
-├── requirements.txt
-├── .env.example
-├── LICENSE
-└── README.md
-```
-
----
-
 ## Getting Started
 
 ### Prerequisites
